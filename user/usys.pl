@@ -36,3 +36,7 @@ entry("getpid");
 entry("sbrk");
 entry("sleep");
 entry("uptime");
+entry("echo_simple");
+entry("echo_kernel");
+entry("trace");
+entry("get_process_info");

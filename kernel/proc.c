@@ -119,6 +119,9 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
+  // For Lab 2 assignment
+  p->trace_mask = 0;
+  p->print_args = 0;
 
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
