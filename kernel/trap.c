@@ -67,12 +67,40 @@ usertrap(void)
     syscall();
   } else if((which_dev = devintr()) != 0){
     // ok
+  } else if(r_scause() == 13 || r_scause() == 15){
+    // Page Load/Store Fault
+    uint64 vaddr = r_stval();
+    uint64 grdown_vaddr = PGROUNDDOWN(vaddr);
+
+    // If a virtual address is accessed without it being allocated
+    if(vaddr >= p->sz) {
+      printf("usertrap(): pagefault: invalid memory access to %p\n", vaddr);
+      p->killed = 1;
+      goto end;
+    }
+    
+    char* mem = kalloc();
+    if(mem == 0){
+      printf("usertrap(): pagefault: out of memory when trying to lazy allocate to %p\n", vaddr);
+      p->killed = 1;
+      goto end;
+    }
+
+    memset(mem, 0, PGSIZE);
+    if(mappages(p->pagetable, grdown_vaddr, PGSIZE, (uint64)mem, PTE_W|PTE_X|PTE_R|PTE_U) != 0){
+      printf("usertrap(): pagefault: error while mapping physical page for %p\n", vaddr);
+      kfree(mem);
+      p->killed = 1;
+      goto end;
+    }
+
   } else {
     printf("usertrap(): unexpected scause %p pid=%d\n", r_scause(), p->pid);
     printf("            sepc=%p stval=%p\n", r_sepc(), r_stval());
     p->killed = 1;
   }
-
+  
+end:
   if(p->killed)
     exit(-1);
 
