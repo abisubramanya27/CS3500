@@ -134,7 +134,8 @@ UPROGS=\
 	$U/_zombie\
 	$U/_call\
 	$U/_section1\
-	$U/_bttest
+	$U/_bttest\
+	$U/_attack
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)

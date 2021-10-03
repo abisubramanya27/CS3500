@@ -98,3 +98,33 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+// For Lab 4 section 3
+uint64
+sys_pcbread(void)
+{
+  // procstate int to string mapping
+  const char* procstate_str[] = {
+    [UNUSED]   "UNUSED",
+    [USED]     "USED",
+    [SLEEPING] "SLEEPING",
+    [RUNNABLE] "RUNNABLE",
+    [RUNNING]  "RUNNING",
+    [ZOMBIE]   "ZOMBIE"
+  };
+  
+  struct proc* p = myproc();
+  printf("Process PID: %d\n", p->pid);
+  printf("Process name: %s\n", p->name);
+  printf("Process state: %s (%d)\n", procstate_str[p->state], p->state);
+  printf("Process killed: %s\n", p->killed ? "yes" : "no");
+  if (p->killed) printf("Process exit status: %d\n", p->xstate);
+  if (p->parent == 0) printf("Process parent: --\n");
+  else printf("Process parent PID: %d | name: %s\n", p->parent->pid, p->parent->name);
+  printf("Process kstack address: %p\n", p->kstack);
+  printf("Process memory size: %d Bytes\n", p->sz);
+  printf("Process pagetable address: %p\n", p->pagetable);
+  printf("Process trapframe address: %p\n", p->trapframe);
+
+  return 0;
+}
