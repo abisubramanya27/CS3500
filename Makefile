@@ -133,7 +133,8 @@ UPROGS=\
 	$U/_wc\
 	$U/_zombie\
 	$U/_call\
-	$U/_section1
+	$U/_section1\
+	$U/_bttest
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)

@@ -121,6 +121,7 @@ panic(char *s)
   printf("panic: ");
   printf(s);
   printf("\n");
+  backtrace();
   panicked = 1; // freeze uart output from other CPUs
   for(;;)
     ;
@@ -131,4 +132,23 @@ printfinit(void)
 {
   initlock(&pr.lock, "pr");
   pr.locking = 1;
+}
+
+// For Lab 4 section 2
+void
+backtrace(void)
+{
+  printf("backtrace:\n");
+  
+  uint64* current_fp = (uint64*)r_fp();
+  uint64  stack_top = PGROUNDUP((uint64)current_fp);
+  uint64  ret_addr;
+  
+  // Proceed backtrace till top of stack (page frame) is hit
+  do {
+    ret_addr = *(current_fp - 1);
+    printf("%p\n", ret_addr);
+    current_fp = (uint64*)*(current_fp - 2);
+ } while ((uint64)current_fp < stack_top);
+
 }
