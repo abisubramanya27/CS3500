@@ -114,17 +114,19 @@ sys_pcbread(void)
   };
   
   struct proc* p = myproc();
-  printf("Process PID: %d\n", p->pid);
-  printf("Process name: %s\n", p->name);
-  printf("Process state: %s (%d)\n", procstate_str[p->state], p->state);
-  printf("Process killed: %s\n", p->killed ? "yes" : "no");
-  if (p->killed) printf("Process exit status: %d\n", p->xstate);
-  if (p->parent == 0) printf("Process parent: --\n");
-  else printf("Process parent PID: %d | name: %s\n", p->parent->pid, p->parent->name);
-  printf("Process kstack address: %p\n", p->kstack);
-  printf("Process memory size: %d Bytes\n", p->sz);
-  printf("Process pagetable address: %p\n", p->pagetable);
-  printf("Process trapframe address: %p\n", p->trapframe);
+  printf("------------ PROCESS CONTROL BLOCK -----------\n");
+  printf("-- PID: %d\n", p->pid);
+  printf("-- Name: %s\n", p->name);
+  printf("-- Process state: %s (%d)\n", procstate_str[p->state], p->state);
+  printf("-- Killed ?: %s\n", p->killed ? "yes" : "no");
+  printf("-- Exit status: %d\n", p->xstate);
+  if (p->parent == 0) printf("-- Parent: -NIL-\n");
+  else printf("-- Parent PID: %d | Name: %s\n", p->parent->pid, p->parent->name);
+  printf("-- kstack virtual address: %p\n", p->kstack);
+  printf("-- Size: %d Bytes\n", p->sz);
+  printf("-- Pagetable base address: %p\n", p->pagetable);
+  printf("-- Trapframe base address: %p\n", p->trapframe);
+  printf("------------------- THE END ------------------\n");
 
   return 0;
 }
