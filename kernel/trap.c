@@ -176,16 +176,18 @@ usertrapret(void)
   
   // For Lab 4 section 3 - printing child and parent trapframe for fork system calls from attack
   acquire(&p->lock);
-  if (p->fork_call && p->trapframe->a0 == 0 && !strcmp(p->name, "attack")) {
+  if (p->fork_call && !strcmp(p->name, "attack")) {
     
-    printf("---------- CHILD PROCESS TRAPFRAME ----------\n");
-    print_trapframe(p->trapframe);
-    printf("----------- END OF CHILD TRAPFRAME ----------\n\n");
-    
-    printf("---------- PARENT PROCESS TRAPFRAME ---------\n");
-    print_trapframe(p->parent->trapframe);
-    printf("---------- END OF PARENT TRAPFRAME ----------\n\n");
-
+    if (p->trapframe->a0 == 0) {
+      printf("---------- CHILD PROCESS TRAPFRAME ----------\n");
+      print_trapframe(p->trapframe);
+      printf("----------- END OF CHILD TRAPFRAME ----------\n\n");
+    }
+    if (p->trapframe->a0 > 0) {
+      printf("---------- PARENT PROCESS TRAPFRAME ---------\n");
+      print_trapframe(p->trapframe);
+      printf("---------- END OF PARENT TRAPFRAME ----------\n\n");  
+    }
   }
   // Ensuring before return fork_call flag is turned off
   // acquire(&p->lock);
