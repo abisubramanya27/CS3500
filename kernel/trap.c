@@ -39,7 +39,6 @@ strcmp(char *a, char *b)
 void
 print_trapframe(struct trapframe* tf) 
 {
-  printf("-- trapframe base address: %p\n", tf);
   printf("-- kernel_satp: %p\n", tf->kernel_satp);
   printf("-- kernel_sp: %p\n", tf->kernel_sp);
   printf("-- kernel_trap: %p\n", tf->kernel_trap);
