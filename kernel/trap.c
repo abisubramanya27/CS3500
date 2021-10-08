@@ -183,7 +183,7 @@ usertrapret(void)
     printf("----------- END OF CHILD TRAPFRAME ----------\n\n");
     
     printf("---------- PARENT PROCESS TRAPFRAME ---------\n");
-    print_trapframe(p->trapframe);
+    print_trapframe(p->parent->trapframe);
     printf("---------- END OF PARENT TRAPFRAME ----------\n\n");
 
   }
