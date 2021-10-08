@@ -138,6 +138,10 @@ syscall(void)
   struct proc *p = myproc();
 
   num = p->trapframe->a7;
+
+  // For Lab 4 section 3 qn 4 - printing registers a0 to a6 in trapframe
+  printf("-------- TRAPFRAME : a0 to a6 --------\n");
+  printf("")
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     p->fork_call = (num == 1);      // For Lab 4 section 3 qn 3
     p->trapframe->a0 = syscalls[num]();
