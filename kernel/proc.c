@@ -119,6 +119,7 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
+  p->fork_call = 0;     // For lab 4 section 3
 
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
@@ -313,6 +314,7 @@ fork(void)
 
   acquire(&np->lock);
   np->state = RUNNABLE;
+  np->fork_call = p->fork_call;     // For Lab 4 section 3 qn 3
   release(&np->lock);
 
   return pid;

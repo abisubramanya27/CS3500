@@ -105,4 +105,7 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  
+  // For Lab 4 section 3 qn 3
+  int fork_call;               // flag indicating if process called fork system call
 };

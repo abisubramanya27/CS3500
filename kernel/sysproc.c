@@ -125,8 +125,19 @@ sys_pcbread(void)
   printf("-- kstack virtual address: %p\n", p->kstack);
   printf("-- Size: %d Bytes\n", p->sz);
   printf("-- Pagetable base address: %p\n", p->pagetable);
+  printf("-- Context base address: %p\n", &p->context);
   printf("-- Trapframe base address: %p\n", p->trapframe);
-  printf("------------------- THE END ------------------\n");
+  printf("-- cwd inode address: %p\n", p->cwd);
+  printf("-- Open files struct address:\n");
+  
+  int nFiles = 0;
+  for(int i = 0; i < NOFILE; i++)
+    if(p->ofile[i]) {
+      nFiles++;
+      printf("-- -- %p\n", p->ofile[i]);
+    }
+  if(!nFiles) printf("-- -- -NIL-\n");
+  printf("------------------ END OF PCB ----------------\n");
 
   return 0;
 }
