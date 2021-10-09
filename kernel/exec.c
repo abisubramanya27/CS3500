@@ -22,8 +22,8 @@ exec(char *path, char **argv)
   struct proc *p = myproc();
   
   // For Lab 4 section 2
-  int *a = 0;
-  printf("derenced null pointer = %d\n", *a);
+  // int *a = 0;
+  // printf("derenced null pointer = %d\n", *a);
 
   begin_op();
 
