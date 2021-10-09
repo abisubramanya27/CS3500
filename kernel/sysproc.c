@@ -137,6 +137,8 @@ sys_pcbread(void)
       printf("-- -- %p\n", p->ofile[i]);
     }
   if(!nFiles) printf("-- -- -NIL-\n");
+  printf("-- Lock address: %p\n", &p->lock);
+  printf("-- chan: %p\n", p->chan);
   printf("------------------ END OF PCB ----------------\n");
 
   return 0;
