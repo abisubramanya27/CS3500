@@ -131,6 +131,31 @@ static uint64 (*syscalls[])(void) = {
 [SYS_pcbread] sys_pcbread
 };
 
+static char* syscall_names[] = {
+[SYS_fork]              "fork",
+[SYS_exit]              "exit",
+[SYS_wait]              "wait",
+[SYS_pipe]              "pipe",
+[SYS_read]              "read",
+[SYS_kill]              "kill",
+[SYS_exec]              "exec",    
+[SYS_fstat]             "fstat",
+[SYS_chdir]             "chdir",
+[SYS_dup]               "dup",
+[SYS_getpid]            "getpid",
+[SYS_sbrk]              "sbrk",
+[SYS_sleep]             "sleep",
+[SYS_uptime]            "uptime",
+[SYS_open]              "open",
+[SYS_write]             "write",
+[SYS_mknod]             "mknod",
+[SYS_unlink]            "unlink",
+[SYS_link]              "link",
+[SYS_mkdir]             "mkdir",
+[SYS_close]             "close",
+[SYS_pcbread]           "pcbread",
+};
+
 void
 syscall(void)
 {
@@ -139,11 +164,22 @@ syscall(void)
 
   num = p->trapframe->a7;
 
-  // For Lab 4 section 3 qn 4 - printing registers a0 to a6 in trapframe
-  printf("-------- TRAPFRAME : a0 to a6 --------\n");
-  printf("")
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     p->fork_call = (num == 1);      // For Lab 4 section 3 qn 3
+    acquire(&p->lock);
+    if (!strcmp(p->name, "attack")) {
+      // For Lab 4 section 3 qn 4 - printing registers a0 to a6 in trapframe
+      printf("-------- TRAPFRAME a0 to a6 for syscall: %s --------\n", syscall_names[num]);
+      printf("-- a0: %p\n", p->trapframe->a0);
+      printf("-- a1: %p\n", p->trapframe->a1);
+      printf("-- a2: %p\n", p->trapframe->a2);
+      printf("-- a3: %p\n", p->trapframe->a3);
+      printf("-- a4: %p\n", p->trapframe->a4);
+      printf("-- a5: %p\n", p->trapframe->a5);
+      printf("-- a6: %p\n", p->trapframe->a6);
+      printf("---------------------- THE END ---------------------\n\n");
+    }
+    release(&p->lock);
     p->trapframe->a0 = syscalls[num]();
   } else {
     printf("%d %s: unknown sys call %d\n",

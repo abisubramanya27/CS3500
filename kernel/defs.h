@@ -132,6 +132,8 @@ char*           safestrcpy(char*, const char*, int);
 int             strlen(const char*);
 int             strncmp(const char*, const char*, uint);
 char*           strncpy(char*, const char*, int);
+// For Lab 4 section 3
+int             strcmp(char*, char*);
 
 // syscall.c
 int             argint(int, int*);

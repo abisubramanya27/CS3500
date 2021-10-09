@@ -102,3 +102,15 @@ strlen(const char *s)
   return n;
 }
 
+// For Lab 4 section 3
+// Function to compare two strings and return:
+//   1 : if string a is lexicographically greater than string b
+//   0 : if string a == string b
+//  -1 : if string a is lexicographically smaller than string b
+int
+strcmp(char *a, char *b) 
+{
+  while(*a && *b && *a == *b) a++, b++;
+  return (uchar)*a < (uchar)*b ? -1 : (uchar)*a > (uchar)*b ? 1 : 0;
+}
+

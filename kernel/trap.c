@@ -29,13 +29,8 @@ trapinithart(void)
   w_stvec((uint64)kernelvec);
 }
 
-int
-strcmp(char *a, char *b) 
-{
-  while(*a && *b && *a == *b) a++, b++;
-  return *a < *b ? -1 : *a > *b ? 1 : 0;
-}
-
+// For Lab 4 section 3 qn 3
+// Function to print the trapframe's contents
 void
 print_trapframe(struct trapframe* tf) 
 {
@@ -176,19 +171,19 @@ usertrapret(void)
   
   // For Lab 4 section 3 - printing child and parent trapframe for fork system calls from attack
   acquire(&p->lock);
-  if (p->fork_call && !strcmp(p->name, "attack")) {
-    
-    if (p->trapframe->a0 == 0) {
-      printf("---------- CHILD PROCESS TRAPFRAME ----------\n");
-      print_trapframe(p->trapframe);
-      printf("----------- END OF CHILD TRAPFRAME ----------\n\n");
-    }
-    if (p->trapframe->a0 > 0) {
-      printf("---------- PARENT PROCESS TRAPFRAME ---------\n");
-      print_trapframe(p->trapframe);
-      printf("---------- END OF PARENT TRAPFRAME ----------\n\n");  
-    }
-  }
+  //if (p->fork_call && !strcmp(p->name, "attack")) {
+  //  
+  //  if (p->trapframe->a0 == 0) {
+  //    printf("---------- CHILD PROCESS TRAPFRAME ----------\n");
+  //    print_trapframe(p->trapframe);
+  //    printf("----------- END OF CHILD TRAPFRAME ----------\n\n");
+  //  }
+  //  if (p->trapframe->a0 > 0) {
+  //    printf("---------- PARENT PROCESS TRAPFRAME ---------\n");
+  //    print_trapframe(p->trapframe);
+  //    printf("---------- END OF PARENT TRAPFRAME ----------\n\n");  
+  //  }
+  //}
   // Ensuring before return fork_call flag is turned off
   // acquire(&p->lock);
   p->fork_call = 0;
