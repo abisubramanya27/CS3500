@@ -95,3 +95,26 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+// For lab 5
+// initialize alarm ticks and handler in struct proc
+uint64
+sys_sigalarm(void)
+{
+  struct proc p = myproc();
+  int ticks;
+  uint64 handler;
+
+  if(argint(0, &ticks) < 0 || argaddr(1, &handler)) return -1;
+  p->alarm_ticks = ticks;
+  p->alarm_handler = handler;
+
+  return 0;
+}
+
+// return
+uint64
+sys_sigreturn(void)
+{
+  return 0;
+}

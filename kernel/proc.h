@@ -105,4 +105,8 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  
+  // For lab 5
+  int alarm_ticks;             // Number of ticks for sigalarm (-1 if not valid)
+  uint64 alarm_handler;        // User space address to handler to be invoked during sigalarm
 };
