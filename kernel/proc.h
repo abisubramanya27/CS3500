@@ -110,5 +110,5 @@ struct proc {
   int alarm_nticks;            // Number of ticks set by sigalarm (-1 if not valid)
   int alarm_ticks_passed;      // Number of ticks passed since last sigalarm system call 
   uint64 alarm_handler_addr;   // User space address to handler to be invoked during sigalarm
-  uint64 alarm_return_addr;    // User space return address to the instr to which CPU should return after signal handler executes
+  struct trapframe *alarm_tf;  // Trapframe that stores the contents of all essential registers and states just before handler is invoked
 };

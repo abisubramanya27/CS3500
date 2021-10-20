@@ -123,7 +123,12 @@ found:
   p->alarm_nticks = -1;
   p->alarm_ticks_passed = -1;
   p->alarm_handler_addr = 0;
-  p->alarm_return_addr = 0;
+  // Allocate alarm trapframe page.
+  if((p->alarm_tf = (struct trapframe *)kalloc()) == 0){
+    freeproc(p);
+    release(&p->lock);
+    return 0;
+  }
 
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
@@ -173,7 +178,9 @@ freeproc(struct proc *p)
   p->alarm_nticks = -1;
   p->alarm_ticks_passed = -1;
   p->alarm_handler_addr = 0;
-  p->alarm_return_addr = 0;
+  if(p->alarm_tf)
+    kfree((void*)p->alarm_tf);
+  p->alarm_tf = 0;
 }
 
 // Create a user page table for a given process,

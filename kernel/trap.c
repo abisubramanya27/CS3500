@@ -81,7 +81,7 @@ usertrap(void)
     if(p->alarm_nticks != -1) {
       p->alarm_ticks_passed++;
       if(p->alarm_ticks_passed == p->alarm_nticks) {
-        p->alarm_return_addr = p->trapframe->epc;
+        *(p->alarm_tf) = *(p->trapframe);
         p->trapframe->epc = p->alarm_handler_addr;
         p->alarm_ticks_passed = 0;
       }
