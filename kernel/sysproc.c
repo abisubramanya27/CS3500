@@ -113,11 +113,12 @@ sys_sigalarm(void)
   return 0;
 }
 
-// return
+// handle resuming of normal process after signal handler finishes executing
 uint64
 sys_sigreturn(void)
 {
   *(myproc()->trapframe) = *(myproc()->alarm_tf);
   myproc()->handler_in_progress = 0;
+  myproc()->alarm_ticks_passed = 0;                // resetting the counter
   return 0;
 }

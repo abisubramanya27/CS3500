@@ -84,7 +84,6 @@ usertrap(void)
         *(p->alarm_tf) = *(p->trapframe);
         p->handler_in_progress = 1;
         p->trapframe->epc = p->alarm_handler_addr;
-        p->alarm_ticks_passed = 0;
       }
     }
     yield();
