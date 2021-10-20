@@ -120,8 +120,10 @@ found:
   p->pid = allocpid();
   p->state = USED;
   // For lab 5
-  p->alarm_ticks = -1;
-  p->alarm_handler = 0;
+  p->alarm_nticks = -1;
+  p->alarm_ticks_passed = -1;
+  p->alarm_handler_addr = 0;
+  p->alarm_return_addr = 0;
 
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
@@ -168,8 +170,10 @@ freeproc(struct proc *p)
   p->xstate = 0;
   p->state = UNUSED;
   // For lab 5
-  p->alarm_ticks = -1;
-  p->alarm_handler = 0;
+  p->alarm_nticks = -1;
+  p->alarm_ticks_passed = -1;
+  p->alarm_handler_addr = 0;
+  p->alarm_return_addr = 0;
 }
 
 // Create a user page table for a given process,

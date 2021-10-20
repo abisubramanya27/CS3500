@@ -101,13 +101,14 @@ sys_uptime(void)
 uint64
 sys_sigalarm(void)
 {
-  struct proc p = myproc();
+  struct proc *p = myproc();
   int ticks;
   uint64 handler;
 
   if(argint(0, &ticks) < 0 || argaddr(1, &handler)) return -1;
-  p->alarm_ticks = ticks;
-  p->alarm_handler = handler;
+  p->alarm_nticks = ticks;
+  p->alarm_ticks_passed = 0;
+  p->alarm_handler_addr = handler;
 
   return 0;
 }
