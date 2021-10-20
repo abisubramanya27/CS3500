@@ -80,8 +80,9 @@ usertrap(void)
   if(which_dev == 2) {
     if(p->alarm_nticks != -1) {
       p->alarm_ticks_passed++;
-      if(p->alarm_ticks_passed == p->alarm_nticks) {
+      if(p->alarm_ticks_passed >= p->alarm_nticks && !p->handler_in_progress) {
         *(p->alarm_tf) = *(p->trapframe);
+        p->handler_in_progress = 1;
         p->trapframe->epc = p->alarm_handler_addr;
         p->alarm_ticks_passed = 0;
       }

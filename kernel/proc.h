@@ -111,4 +111,5 @@ struct proc {
   int alarm_ticks_passed;      // Number of ticks passed since last sigalarm system call 
   uint64 alarm_handler_addr;   // User space address to handler to be invoked during sigalarm
   struct trapframe *alarm_tf;  // Trapframe that stores the contents of all essential registers and states just before handler is invoked
+  int handler_in_progress;     // Flag which is set if an alarm handler is executing currently
 };
