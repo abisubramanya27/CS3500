@@ -21,13 +21,26 @@ struct run {
 struct {
   struct spinlock lock;
   struct run *freelist;
+  uint ref_count[(uint)(PHYSTOP-KERNBASE) / PGSIZE];       // array storing reference count for each page
 } kmem;
+
+#define ref_ind(a) (((uint64)(a) - KERNBASE) / PGSIZE)
 
 void
 kinit()
 {
   initlock(&kmem.lock, "kmem");
   freerange(end, (void*)PHYSTOP);
+}
+
+// For OS Lab 6
+// Function to add a reference count
+void
+kaddref(void* pa)
+{
+  acquire(&kmem.lock);
+  ref_count[ref_index(pa)]++;
+  release(&kmem.lock);
 }
 
 void
@@ -51,15 +64,23 @@ kfree(void *pa)
   if(((uint64)pa % PGSIZE) != 0 || (char*)pa < end || (uint64)pa >= PHYSTOP)
     panic("kfree");
 
-  // Fill with junk to catch dangling refs.
-  memset(pa, 1, PGSIZE);
-
-  r = (struct run*)pa;
-
+  uint idx = ref_index(pa);
   acquire(&kmem.lock);
-  r->next = kmem.freelist;
-  kmem.freelist = r;
-  release(&kmem.lock);
+  kmem.ref_count[idx]--;
+
+  if(kmem.ref_count[idx] == 0){
+    release(&kmem.lock);
+    
+    // Fill with junk to catch dangling refs.
+    memset(pa, 1, PGSIZE);
+
+    r = (struct run*)pa;
+
+    acquire(&kmem.lock);
+    r->next = kmem.freelist;
+    kmem.freelist = r;
+    release(&kmem.lock);
+  }
 }
 
 // Allocate one 4096-byte page of physical memory.
@@ -72,8 +93,10 @@ kalloc(void)
 
   acquire(&kmem.lock);
   r = kmem.freelist;
-  if(r)
+  if(r){
     kmem.freelist = r->next;
+    kmem.ref_count[ref_index(r)] = 1;
+  }
   release(&kmem.lock);
 
   if(r)
