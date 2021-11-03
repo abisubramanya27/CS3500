@@ -319,10 +319,8 @@ uvmcopy(pagetable_t old, pagetable_t new, uint64 sz)
       goto err;
     }
     else{
-      uvmunmap(old, i, 1, 0);
-      if(mappages(old, i, PGSIZE, pa, newflags) != 0){
-        panic("uvmcopy: bad parent mapping during COW");
-      }
+      *pte = (*pte | PTE_COW) & ~PTE_W 
+      kaddref(pa);
     }
   }
   return 0;
