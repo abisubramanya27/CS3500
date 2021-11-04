@@ -67,12 +67,34 @@ usertrap(void)
     syscall();
   } else if((which_dev = devintr()) != 0){
     // ok
+  } else if(r_scause()==15){
+    pte_t *pte;
+    if((pte = (pte_t *)walkaddr(p->pagetable, PGROUNDDOWN(r_stval()))) == 0 || (*pte & PTE_COW) == 0)
+      goto uerr;
+    uint64 pa = PTE2PA(*pte);
+    if(kgetref((void *)pa) == 1){
+      *pte = (*pte | PTE_W) & ~PTE_COW;
+    }
+    else{
+      uint flags = PTE_FLAGS(*pte);
+      char* mem;
+      if((mem = kalloc()) == 0){
+        printf("usertrap(): r_scause=15 kalloc failed during COW for process\n");
+        goto err;
+      }
+      memmove(mem, (char*)pa, PGSIZE);
+      if(mappages(p->pagetable, PGROUNDDOWN(r_stval()), PGSIZE, (uint64)mem, flags | PTE_W) != 0){
+        printf("usertrap(): r_scause=15 mappages failed during COW for process\n");
+      }
+      kfree((void*)pa);
+    }
   } else {
+    uerr:
     printf("usertrap(): unexpected scause %p pid=%d\n", r_scause(), p->pid);
     printf("            sepc=%p stval=%p\n", r_sepc(), r_stval());
     p->killed = 1;
   }
-
+  err:
   if(p->killed)
     exit(-1);
 

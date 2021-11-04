@@ -24,7 +24,6 @@ struct {
   uint ref_count[(uint)(PHYSTOP-KERNBASE) / PGSIZE];       // array storing reference count for each page
 } kmem;
 
-#define ref_ind(a) (((uint64)(a) - KERNBASE) / PGSIZE)
 
 void
 kinit()
@@ -39,8 +38,14 @@ void
 kaddref(void* pa)
 {
   acquire(&kmem.lock);
-  ref_count[ref_index(pa)]++;
+  kmem.ref_count[ref_index(pa)]++;
   release(&kmem.lock);
+}
+
+uint
+kgetref(void* pa)
+{
+  return kmem.ref_count[ref_index(pa)];
 }
 
 void
@@ -67,10 +72,9 @@ kfree(void *pa)
   uint idx = ref_index(pa);
   acquire(&kmem.lock);
   kmem.ref_count[idx]--;
-
+  release(&kmem.lock);
+  
   if(kmem.ref_count[idx] == 0){
-    release(&kmem.lock);
-    
     // Fill with junk to catch dangling refs.
     memset(pa, 1, PGSIZE);
 
