@@ -393,7 +393,7 @@ copyout(pagetable_t pagetable, uint64 dstva, char *src, uint64 len)
       }
       memmove(mem, (char*)pa, PGSIZE);
       
-      uvmunmap(pagetable, va0, PGSIZE, 0);
+      uvmunmap(pagetable, va0, 1, 0);
       kfree((void*)pa);
       if(kgetref((void *)pa) <= 1){
         *pte = (*pte | PTE_W) & ~PTE_COW;

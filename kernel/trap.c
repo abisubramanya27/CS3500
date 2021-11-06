@@ -87,7 +87,7 @@ usertrap(void)
       }
       memmove(mem, (char*)pa, PGSIZE);
       
-      uvmunmap(p->pagetable, vpage_head, PGSIZE, 0);
+      uvmunmap(p->pagetable, vpage_head, 1, 0);
       kfree((void*)pa);
       if(kgetref((void *)pa) <= 1){
         *pte = (*pte | PTE_W) & ~PTE_COW;
