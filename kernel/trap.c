@@ -67,27 +67,41 @@ usertrap(void)
     syscall();
   } else if((which_dev = devintr()) != 0){
     // ok
-  } else if(r_scause()==15){
+  } else if(r_scause()==15){   // 15: load page fault
+    uint64 vpage_head = PGROUNDDOWN(r_stval());
     pte_t *pte;
-    if((pte = (pte_t *)walkaddr(p->pagetable, PGROUNDDOWN(r_stval()))) == 0 || (*pte & PTE_COW) == 0)
-      goto uerr;
-    uint64 pa = PTE2PA(*pte);
-    if(kgetref((void *)pa) == 1){
-      *pte = (*pte | PTE_W) & ~PTE_COW;
+    if((pte = walkpte(p->pagetable, vpage_head)) == 0){
+      printf("usertrap(): scause=15 stval=%p page not found\n", r_stval());
+      p->killed = 1;
+      goto err;
     }
-    else{
+
+    if(*pte & PTE_COW){
       uint flags = PTE_FLAGS(*pte);
+      uint64 pa = PTE2PA(*pte);
       char* mem;
       if((mem = kalloc()) == 0){
-        printf("usertrap(): r_scause=15 kalloc failed during COW for process\n");
+        printf("usertrap(): scause=15 kalloc failed during COW for process\n");
+        p->killed = 1;
         goto err;
       }
       memmove(mem, (char*)pa, PGSIZE);
-      if(mappages(p->pagetable, PGROUNDDOWN(r_stval()), PGSIZE, (uint64)mem, flags | PTE_W) != 0){
-        printf("usertrap(): r_scause=15 mappages failed during COW for process\n");
-      }
+      
+      uvmunmap(p->pagetable, vpage_head, PGSIZE, 0);
       kfree((void*)pa);
+      if(kgetref((void *)pa) <= 1){
+        *pte = (*pte | PTE_W) & ~PTE_COW;
+      }
+
+      if(mappages(p->pagetable, vpage_head, PGSIZE, (uint64)mem, (flags | PTE_W) & ~PTE_COW) != 0){
+        printf("usertrap(): scause=15 mappages failed during COW for process\n");
+        p->killed = 1;
+        goto err;
+      }
     }
+    
+    else goto uerr;
+
   } else {
     uerr:
     printf("usertrap(): unexpected scause %p pid=%d\n", r_scause(), p->pid);

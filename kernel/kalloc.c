@@ -21,7 +21,7 @@ struct run {
 struct {
   struct spinlock lock;
   struct run *freelist;
-  uint ref_count[(uint)(PHYSTOP-KERNBASE) / PGSIZE];       // array storing reference count for each page
+  int ref_count[(PHYSTOP-KERNBASE) / PGSIZE + 1];       // array storing reference count for each page
 } kmem;
 
 
@@ -74,7 +74,7 @@ kfree(void *pa)
   kmem.ref_count[idx]--;
   release(&kmem.lock);
   
-  if(kmem.ref_count[idx] == 0){
+  if(kmem.ref_count[idx] <= 0){
     // Fill with junk to catch dangling refs.
     memset(pa, 1, PGSIZE);
 
@@ -83,6 +83,7 @@ kfree(void *pa)
     acquire(&kmem.lock);
     r->next = kmem.freelist;
     kmem.freelist = r;
+    kmem.ref_count[idx] = 0;
     release(&kmem.lock);
   }
 }

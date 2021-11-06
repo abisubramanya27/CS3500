@@ -97,6 +97,28 @@ walk(pagetable_t pagetable, uint64 va, int alloc)
   return &pagetable[PX(0, va)];
 }
 
+// Look up a user space virtual address and return the PTE
+// after performing checks similar to walkaddr.
+// If invalid PTE, return 0
+pte_t *
+walkpte(pagetable_t pagetable, uint64 va)
+{
+  pte_t *pte;
+
+  if(va >= MAXVA)
+    return 0;
+
+  pte = walk(pagetable, va, 0);
+  if(pte == 0)
+    return 0;
+  if((*pte & PTE_V) == 0)
+    return 0;
+  if((*pte & PTE_U) == 0)
+    return 0;
+  
+  return pte;
+}
+
 // Look up a virtual address, return the physical address,
 // or 0 if not mapped.
 // Can only be used to look up user pages.
@@ -145,7 +167,7 @@ mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm)
   for(;;){
     if((pte = walk(pagetable, a, 1)) == 0)
       return -1;
-    if(*pte & PTE_V)
+    if(*pte & PTE_V) 
       panic("remap");
     *pte = PA2PTE(pa) | perm | PTE_V;
     if(a == last)
@@ -314,6 +336,7 @@ uvmcopy(pagetable_t old, pagetable_t new, uint64 sz)
     // memmove(mem, (char*)pa, PGSIZE);
     newflags |= PTE_COW;
     newflags &= (~PTE_W);
+
     if(mappages(new, i, PGSIZE, pa, newflags) != 0){
       // kfree(mem);
       goto err;
@@ -350,15 +373,39 @@ int
 copyout(pagetable_t pagetable, uint64 dstva, char *src, uint64 len)
 {
   uint64 n, va0, pa0;
+  pte_t *pte;
 
   while(len > 0){
     va0 = PGROUNDDOWN(dstva);
-    pa0 = walkaddr(pagetable, va0);
-    if(pa0 == 0)
+    pte = walkpte(pagetable, va0);
+    if(pte == 0)
       return -1;
     n = PGSIZE - (dstva - va0);
     if(n > len)
       n = len;
+
+    if(*pte & PTE_COW){
+      uint flags = PTE_FLAGS(*pte);
+      uint64 pa = PTE2PA(*pte);
+      char* mem;
+      if((mem = kalloc()) == 0){
+        return -1;
+      }
+      memmove(mem, (char*)pa, PGSIZE);
+      
+      uvmunmap(pagetable, va0, PGSIZE, 0);
+      kfree((void*)pa);
+      if(kgetref((void *)pa) <= 1){
+        *pte = (*pte | PTE_W) & ~PTE_COW;
+      }
+
+      if(mappages(pagetable, va0, PGSIZE, (uint64)mem, (flags | PTE_W) & ~PTE_COW) != 0){
+        return -1;
+      }
+      pa0 = (uint64)mem;
+    }
+    else pa0 = PTE2PA(*pte);
+
     memmove((void *)(pa0 + (dstva - va0)), src, n);
 
     len -= n;
