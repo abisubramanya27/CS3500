@@ -5,7 +5,8 @@
 int
 main(int argc, char **argv)
 {
-  int K = 1;
+  int K = 1; // Caesar Cipher Key to be set here
+
   if (setKey(K) < 0) {
     printf("Error while setting Caesar Cipher Key!! Exiting...");
     exit(0);
