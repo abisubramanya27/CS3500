@@ -49,12 +49,30 @@ extern volatile int panicked; // from printf.c
 
 void uartstart();
 
-int K = 25;    // Key for Caesar's Cipher - Lab Exam
-int mod = 26;  // mod for Caesar's Cipher - Lab Exam
-// Function to check if given character belongs to a-zA-Z0-9 (characters to be encrypted)
+int key = 0;    // Key for Caesar's Cipher - Lab Exam
+
+// Function to check if given character is an alphabet (belongs to a-zA-Z)
 int
-shouldEncrypt(int c) {
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
+isAlpha(int c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); 
+}
+
+// Function to check if given character is a number (belongs to 0-9)
+int
+isNum(int c) {
+    return (c >= '0' && c <= '9');
+}
+
+// Function to encrypt the given character.
+// The function inividually encrypts each character class:
+//  a-z within a-z
+//  A-Z within A-Z
+//  0-9 within 0-9
+int
+encrypt(int c) {
+    if (isAlpha(c)) return (c + key)%26 + (c >= 'a' && c <= 'z' ? 'a' : 'A');
+    else if (isNum(c)) return (c + key)%10 + '0';
+    else return c;
 }
 
 void
@@ -108,7 +126,7 @@ uartputc(int c)
       sleep(&uart_tx_r, &uart_tx_lock);
     } else {
       // Encrypting the character written to port if it should be
-      uart_tx_buf[uart_tx_w % UART_TX_BUF_SIZE] = shouldEncrypt(c) ? (c + K)%mod : c;
+      uart_tx_buf[uart_tx_w % UART_TX_BUF_SIZE] = encrypt(c);
       uart_tx_w += 1;
       uartstart();
       release(&uart_tx_lock);
@@ -135,8 +153,7 @@ uartputc_sync(int c)
   while((ReadReg(LSR) & LSR_TX_IDLE) == 0)
     ;
   // Encrypting the character written to port if it should be
-  c = shouldEncrypt(c) ? (c + K)%mod : c;
-  WriteReg(THR, c);
+  WriteReg(THR, encrypt(c));
 
   pop_off();
 }

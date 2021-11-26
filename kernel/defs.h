@@ -153,6 +153,8 @@ void            uartintr(void);
 void            uartputc(int);
 void            uartputc_sync(int);
 int             uartgetc(void);
+// For Lab Exam - Caesar Cipher
+int             key;
 
 // vm.c
 void            kvminit(void);
