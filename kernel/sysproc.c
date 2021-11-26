@@ -95,3 +95,16 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+// Lab Exam - System Call (setKey)
+// sets the Caesar Cipher Key to be used in uart.c
+uint64
+sys_setKey(void)
+{
+  int K;
+
+  if (argint(0, &K) < 0) return -1;
+  key = K;
+
+  return 0;
+}

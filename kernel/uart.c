@@ -49,7 +49,7 @@ extern volatile int panicked; // from printf.c
 
 void uartstart();
 
-int key = 0;    // Key for Caesar's Cipher - Lab Exam
+int key;    // Key for Caesar's Cipher - Lab Exam
 
 // Function to check if given character is an alphabet (belongs to a-zA-Z)
 int
@@ -70,8 +70,10 @@ isNum(int c) {
 //  0-9 within 0-9
 int
 encrypt(int c) {
-    if (isAlpha(c)) return (c + key)%26 + (c >= 'a' && c <= 'z' ? 'a' : 'A');
-    else if (isNum(c)) return (c + key)%10 + '0';
+    int start = (c >= 'a' && c <= 'z') ? 'a' :
+            (c >= 'A' && c <= 'Z') ? 'A' : '0';
+    if (isAlpha(c)) return (c - start + key)%26 + start;
+    else if (isNum(c)) return (c - start + key)%10 + start;
     else return c;
 }
 
