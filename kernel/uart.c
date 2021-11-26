@@ -49,6 +49,14 @@ extern volatile int panicked; // from printf.c
 
 void uartstart();
 
+int K = 25;    // Key for Caesar's Cipher - Lab Exam
+int mod = 26;  // mod for Caesar's Cipher - Lab Exam
+// Function to check if given character belongs to a-zA-Z0-9 (characters to be encrypted)
+int
+shouldEncrypt(int c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
+}
+
 void
 uartinit(void)
 {
@@ -99,7 +107,8 @@ uartputc(int c)
       // wait for uartstart() to open up space in the buffer.
       sleep(&uart_tx_r, &uart_tx_lock);
     } else {
-      uart_tx_buf[uart_tx_w % UART_TX_BUF_SIZE] = c;
+      // Encrypting the character written to port if it should be
+      uart_tx_buf[uart_tx_w % UART_TX_BUF_SIZE] = shouldEncrypt(c) ? (c + K)%mod : c;
       uart_tx_w += 1;
       uartstart();
       release(&uart_tx_lock);
@@ -125,6 +134,8 @@ uartputc_sync(int c)
   // wait for Transmit Holding Empty to be set in LSR.
   while((ReadReg(LSR) & LSR_TX_IDLE) == 0)
     ;
+  // Encrypting the character written to port if it should be
+  c = shouldEncrypt(c) ? (c + K)%mod : c;
   WriteReg(THR, c);
 
   pop_off();
