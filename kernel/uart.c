@@ -49,7 +49,7 @@ extern volatile int panicked; // from printf.c
 
 void uartstart();
 
-int key;    // Key for Caesar's Cipher - Lab Exam
+int key = 0;    // Key for Caesar's Cipher - Lab Exam
 
 // Function to check if given character is an alphabet (belongs to a-zA-Z)
 int

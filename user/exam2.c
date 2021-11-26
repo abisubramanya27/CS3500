@@ -5,13 +5,13 @@
 int
 main(int argc, char **argv)
 {
-  int K = 1; // Caesar Cipher Key to be set here
+  int K = 26; // Caesar Cipher Key to be set here
   if (setKey(K) < 0) {
     printf("Error while setting Caesar Cipher Key!! Exiting...");
     exit(0);
   }
   
-  char *str = "HELLO WORLD!";
+  char *str = "CS3500!";
   for(int i = 0; i < strlen(str); i++) {
     int st = 0, end = 0, mod = 26;
     if(str[i] >= 'a' && str[i] <= 'z') st = 'a', end = 'z';
